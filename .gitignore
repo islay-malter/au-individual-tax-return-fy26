@@ -1,0 +1,17 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+config/
+*.local.json
+ITR_*.md
+Accountant_*.md
+Missing_Info_And_Questions.md
+*.pdf
+*.csv
+*.tsv
+*.xls
+*.xlsx
+*.doc
+*.docx

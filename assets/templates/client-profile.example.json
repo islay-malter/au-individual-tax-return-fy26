@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "scope": {
+    "tax_year": "2025-26",
+    "lodgment_path": null,
+    "residency_status": null,
+    "deceased_return": null
+  },
+  "identity": {
+    "display_name": "",
+    "occupation": ""
+  },
+  "records": {
+    "prior_year_return_available": null,
+    "prior_year_noa_available": null,
+    "ato_prefill_status": null,
+    "refund_account_available_to_lodger": null
+  },
+  "household": {
+    "had_spouse": null,
+    "spouse_income_details_available": null,
+    "dependent_children_count": null,
+    "private_hospital_cover": null,
+    "private_health_changed_during_year": null,
+    "medicare_exemption_or_entitlement_gap": null
+  },
+  "employment": {
+    "has_salary_or_wages": null,
+    "employers": [],
+    "has_allowances_or_lump_sums": null,
+    "has_government_payments": null,
+    "has_reportable_fringe_benefits": null,
+    "has_reportable_employer_super": null,
+    "has_salary_packaging_or_novated_lease": null,
+    "works_from_home": null,
+    "has_other_work_related_deductions": null,
+    "has_car_or_travel_claim": null
+  },
+  "investments_and_business": {
+    "has_bank_interest": null,
+    "has_australian_dividends": null,
+    "has_managed_funds_etfs_or_trusts": null,
+    "disposed_of_cgt_assets": null,
+    "has_drp": null,
+    "has_foreign_income": null,
+    "foreign_assets_over_aud_50000": null,
+    "has_crypto": null,
+    "has_rental_property": null,
+    "has_partnership_or_trust_income": null,
+    "has_sole_trader_business_or_psi": null
+  },
+  "employee_share_plans": {
+    "has_ess_rsus_options_or_espp": null,
+    "had_vest_exercise_or_sale": null,
+    "retained_shares": null,
+    "foreign_employer_or_overseas_workdays": null
+  },
+  "super_and_loans": {
+    "super_statement_available": null,
+    "made_personal_super_contributions": null,
+    "notice_of_intent_acknowledged": null,
+    "has_division_293_or_excess_contributions": null,
+    "has_study_or_training_loan": null
+  },
+  "deductions_and_offsets": {
+    "has_tax_agent_fees": null,
+    "has_donations": null,
+    "has_income_protection": null,
+    "has_ato_interest_charges": null,
+    "has_other_deductions_or_offsets": null,
+    "has_carried_forward_capital_losses": null,
+    "has_carried_forward_tax_losses": null
+  },
+  "payg": {
+    "payg_instalments_issued": null
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:openai:skill:au-itr-assessment-fy26:client-profile",
+  "title": "AU ITR Assessment FY26 Client Profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "scope",
+    "identity",
+    "records",
+    "household",
+    "employment",
+    "investments_and_business",
+    "employee_share_plans",
+    "super_and_loans",
+    "deductions_and_offsets",
+    "payg"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tax_year", "lodgment_path", "residency_status", "deceased_return"],
+      "properties": {
+        "tax_year": {"const": "2025-26"},
+        "lodgment_path": {"enum": ["accountant", "mytax", "amendment", "estimate-only", null]},
+        "residency_status": {"enum": ["full-year-resident", "part-year-resident", "foreign-resident", "temporary-resident", "unsure", null]},
+        "deceased_return": {"type": ["boolean", "null"]}
+      }
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["display_name", "occupation"],
+      "properties": {
+        "display_name": {"type": "string", "maxLength": 100},
+        "occupation": {"type": "string", "maxLength": 150}
+      }
+    },
+    "records": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["prior_year_return_available", "prior_year_noa_available", "ato_prefill_status", "refund_account_available_to_lodger"],
+      "properties": {
+        "prior_year_return_available": {"type": ["boolean", "null"]},
+        "prior_year_noa_available": {"type": ["boolean", "null"]},
+        "ato_prefill_status": {"enum": ["official-agent-prefill", "mytax-prefilled", "saved-mytax-draft", "not-available", null]},
+        "refund_account_available_to_lodger": {"type": ["boolean", "null"]}
+      }
+    },
+    "household": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["had_spouse", "spouse_income_details_available", "dependent_children_count", "private_hospital_cover", "private_health_changed_during_year", "medicare_exemption_or_entitlement_gap"],
+      "properties": {
+        "had_spouse": {"type": ["boolean", "null"]},
+        "spouse_income_details_available": {"type": ["boolean", "null"]},
+        "dependent_children_count": {"type": ["integer", "null"], "minimum": 0},
+        "private_hospital_cover": {"type": ["boolean", "null"]},
+        "private_health_changed_during_year": {"type": ["boolean", "null"]},
+        "medicare_exemption_or_entitlement_gap": {"type": ["boolean", "null"]}
+      }
+    },
+    "employment": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "has_salary_or_wages": {"type": ["boolean", "null"]},
+        "employers": {"type": "array", "items": {"type": "string", "maxLength": 150}},
+        "has_allowances_or_lump_sums": {"type": ["boolean", "null"]},
+        "has_government_payments": {"type": ["boolean", "null"]},
+        "has_reportable_fringe_benefits": {"type": ["boolean", "null"]},
+        "has_reportable_employer_super": {"type": ["boolean", "null"]},
+        "has_salary_packaging_or_novated_lease": {"type": ["boolean", "null"]},
+        "works_from_home": {"type": ["boolean", "null"]},
+        "has_other_work_related_deductions": {"type": ["boolean", "null"]},
+        "has_car_or_travel_claim": {"type": ["boolean", "null"]}
+      },
+      "required": ["has_salary_or_wages", "employers", "has_allowances_or_lump_sums", "has_government_payments", "has_reportable_fringe_benefits", "has_reportable_employer_super", "has_salary_packaging_or_novated_lease", "works_from_home", "has_other_work_related_deductions", "has_car_or_travel_claim"]
+    },
+    "investments_and_business": {
+      "type": "object",
+      "required": ["has_bank_interest", "has_australian_dividends", "has_managed_funds_etfs_or_trusts", "disposed_of_cgt_assets", "has_drp", "has_foreign_income", "foreign_assets_over_aud_50000", "has_crypto", "has_rental_property", "has_partnership_or_trust_income", "has_sole_trader_business_or_psi"],
+      "propertyNames": {"enum": ["has_bank_interest", "has_australian_dividends", "has_managed_funds_etfs_or_trusts", "disposed_of_cgt_assets", "has_drp", "has_foreign_income", "foreign_assets_over_aud_50000", "has_crypto", "has_rental_property", "has_partnership_or_trust_income", "has_sole_trader_business_or_psi"]},
+      "additionalProperties": {"type": ["boolean", "null"]}
+    },
+    "employee_share_plans": {
+      "type": "object",
+      "required": ["has_ess_rsus_options_or_espp", "had_vest_exercise_or_sale", "retained_shares", "foreign_employer_or_overseas_workdays"],
+      "propertyNames": {"enum": ["has_ess_rsus_options_or_espp", "had_vest_exercise_or_sale", "retained_shares", "foreign_employer_or_overseas_workdays"]},
+      "additionalProperties": {"type": ["boolean", "null"]}
+    },
+    "super_and_loans": {
+      "type": "object",
+      "required": ["super_statement_available", "made_personal_super_contributions", "notice_of_intent_acknowledged", "has_division_293_or_excess_contributions", "has_study_or_training_loan"],
+      "propertyNames": {"enum": ["super_statement_available", "made_personal_super_contributions", "notice_of_intent_acknowledged", "has_division_293_or_excess_contributions", "has_study_or_training_loan"]},
+      "additionalProperties": {"type": ["boolean", "null"]}
+    },
+    "deductions_and_offsets": {
+      "type": "object",
+      "required": ["has_tax_agent_fees", "has_donations", "has_income_protection", "has_ato_interest_charges", "has_other_deductions_or_offsets", "has_carried_forward_capital_losses", "has_carried_forward_tax_losses"],
+      "propertyNames": {"enum": ["has_tax_agent_fees", "has_donations", "has_income_protection", "has_ato_interest_charges", "has_other_deductions_or_offsets", "has_carried_forward_capital_losses", "has_carried_forward_tax_losses"]},
+      "additionalProperties": {"type": ["boolean", "null"]}
+    },
+    "payg": {
+      "type": "object",
+      "required": ["payg_instalments_issued"],
+      "propertyNames": {"enum": ["payg_instalments_issued"]},
+      "additionalProperties": {"type": ["boolean", "null"]}
+    }
+  }
+}
