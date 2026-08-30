@@ -46,9 +46,10 @@ From the skill folder, run:
 ```bash
 python3 scripts/check_shareable.py .
 python3 -m unittest discover -s tests -v
+python3 scripts/validate_evals.py evals/cases.json
 ```
 
-The preflight rejects common private/generated files and fails after the package's `reverify-by` date. Review the final file list manually before publishing or sharing it.
+The preflight rejects common private/generated files and fails after the package's `reverify-by` date. `validate_evals.py` checks the structure and coverage of the behavioural eval manifest in [`evals/cases.json`](evals/cases.json); it does not run the model, so a clean result only confirms the cases are well-formed, not that the skill currently passes them. Review the final file list manually before publishing or sharing it.
 
 ## Licence
 

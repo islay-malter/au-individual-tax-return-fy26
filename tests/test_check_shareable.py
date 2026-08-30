@@ -45,6 +45,16 @@ class ShareabilityTests(unittest.TestCase):
             issues = MODULE.findings(root, as_of=date(2026, 8, 31))
             self.assertTrue(any("private config directory" in issue for issue in issues))
 
+    def test_git_config_is_not_flagged(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            populate_package(root)
+            git_config = root / ".git" / "config"
+            git_config.parent.mkdir(parents=True, exist_ok=True)
+            git_config.write_text("[core]\n\trepositoryformatversion = 0\n", encoding="utf-8")
+            issues = MODULE.findings(root, as_of=date(2026, 8, 31))
+            self.assertEqual(issues, [])
+
     def test_package_is_current_through_reverify_date(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
