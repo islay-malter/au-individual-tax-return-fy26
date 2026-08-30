@@ -73,26 +73,32 @@ def package_metadata(skill_content: str) -> tuple[dict[str, str], list[str]]:
     return metadata, issues
 
 
+def _package_files(skill_dir: Path) -> list[Path]:
+    return [
+        path
+        for path in skill_dir.rglob("*")
+        if path.is_file() and ".git" not in path.relative_to(skill_dir).parts
+    ]
+
+
 def findings(skill_dir: Path, *, as_of: date | None = None) -> list[str]:
     issues: list[str] = []
     check_date = as_of or date.today()
     if not skill_dir.is_dir():
         return [f"not a directory: {skill_dir}"]
 
-    present = {
-        path.relative_to(skill_dir).as_posix()
-        for path in skill_dir.rglob("*")
-        if path.is_file()
-    }
+    present = {path.relative_to(skill_dir).as_posix() for path in _package_files(skill_dir)}
     for required in sorted(REQUIRED_FILES - present):
         issues.append(f"missing required file: {required}")
 
-    for path in sorted((item for item in skill_dir.rglob("*") if item.is_file()), key=lambda item: item.as_posix()):
-        relative = path.relative_to(skill_dir).as_posix()
-        parts = set(path.relative_to(skill_dir).parts)
+    for path in sorted(_package_files(skill_dir), key=lambda item: item.as_posix()):
+        relative_path = path.relative_to(skill_dir)
+        relative = relative_path.as_posix()
+        parts = set(relative_path.parts)
+        directory_parts = set(relative_path.parts[:-1])
         lower_name = path.name.lower()
 
-        if "config" in parts:
+        if "config" in directory_parts:
             issues.append(f"private config directory must not be distributed: {relative}")
         if path.suffix.lower() in BLOCKED_SUFFIXES:
             issues.append(f"blocked document/archive type: {relative}")

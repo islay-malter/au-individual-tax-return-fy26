@@ -3,7 +3,7 @@ name: au-itr-assessment-fy26
 description: Prepare, review, or sanity-check an Australian individual income tax return for 2025-26 (year ended 30 June 2026) using an intake-first, evidence-reconciled workflow. Use before accountant review, for a myTax preparation check, or for a cautious working estimate. Do not use for another income year or as legal or tax advice.
 license: MIT
 metadata:
-  package-version: "0.1.0"
+  package-version: "0.1.1"
   sources-last-verified: "2026-08-31"
   reverify-by: "2026-11-30"
 ---
