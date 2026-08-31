@@ -3,6 +3,14 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .mypy_cache/
+.ruff_cache/
+
+# Harness-local state. The package itself is harness-agnostic; anything a
+# particular agent host writes beside it stays out of the distributable folder.
+.claude/
+.codex/
+.agents/
+
 config/
 *.local.json
 ITR_*.md

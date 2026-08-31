@@ -28,6 +28,7 @@ Do not request a TFN, myGov credentials, MFA codes, passwords, or full bank iden
 - Allowances, bonuses, commissions, termination payments, paid parental leave, workers compensation, or government payments.
 - Reportable fringe benefits, salary packaging, novated leases, and reportable employer super.
 - Work-from-home dates and hours records.
+- Occupation, where any work expense is claimed. It selects the ATO occupation and industry guide that governs which claims are ordinarily deductible.
 - Work expenses: tools, equipment, phone/internet, subscriptions, training, memberships, uniforms, travel, and car use.
 - Reimbursements or employer-provided items relating to any proposed deduction.
 

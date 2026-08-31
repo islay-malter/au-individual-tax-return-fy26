@@ -162,8 +162,9 @@ def ask_if_unknown(profile: dict[str, Any], dotted: str, question: str, question
 def build(profile: dict[str, Any]) -> str:
     validate_profile(profile)
     raw_display_name = nested(profile, "identity.display_name")
-    display_name = raw_display_name or "[display name / initials]"
-    display_name = markdown_cell(str(display_name))
+    # Rendered on a plain line rather than in a table, so no cell escaping is
+    # applied; validate_text has already rejected newlines and control characters.
+    display_name = str(raw_display_name or "[display name / initials]")
 
     required: list[tuple[str, str, str]] = []
     conditional: list[tuple[str, str, str]] = []
@@ -248,8 +249,18 @@ def build(profile: dict[str, Any]) -> str:
         questions.append("Were there any Medicare entitlement gaps or exemption circumstances during the year?")
 
     salary = flag(profile, "employment.has_salary_or_wages")
+    employers = nested(profile, "employment.employers") or []
     if salary is True:
-        add(required, "Tax-ready income statement/payment summary for each employer", "Salary, allowances, withholding, RFBA, and reportable employer super.")
+        if employers:
+            named = ", ".join(str(employer) for employer in employers)
+            add(
+                required,
+                f"Tax-ready income statement/payment summary for each of {len(employers)} employer(s): {named}",
+                "Salary, allowances, withholding, RFBA, and reportable employer super. Confirm every employer is marked Tax ready.",
+            )
+        else:
+            add(required, "Tax-ready income statement/payment summary for each employer", "Salary, allowances, withholding, RFBA, and reportable employer super.")
+            questions.append("Which employers paid salary or wages during 2025-26? Naming them confirms no income statement is missed.")
         add(conditional, "Final payslip for each employer", "Useful for payroll and 12% super-guarantee reconciliation.", "If useful")
     elif salary is None:
         priority_questions.append("Did the taxpayer receive salary, wages, or employment income?")
@@ -274,6 +285,24 @@ def build(profile: dict[str, Any]) -> str:
         add(conditional, "Work-expense receipts and work-use basis", "Substantiation and apportionment of proposed deductions.")
     if flag(profile, "employment.has_car_or_travel_claim") is True:
         add(conditional, "Car/travel records", "Work kilometres per car or logbook/odometer/cost records; FY26 cents-per-kilometre cap and rate must be applied.")
+
+    claims_work_expenses = any(
+        flag(profile, f"employment.{field}") is True
+        for field in ("works_from_home", "has_other_work_related_deductions", "has_car_or_travel_claim")
+    )
+    occupation = nested(profile, "identity.occupation")
+    if claims_work_expenses:
+        if occupation:
+            add(
+                conditional,
+                f"ATO occupation and industry guide for: {occupation}",
+                "Confirms which work expenses are ordinarily deductible for this occupation and which are commonly disallowed.",
+                "Check",
+            )
+        else:
+            questions.append(
+                "What was the taxpayer's occupation? It determines which ATO occupation guide applies to the work-expense claims."
+            )
 
     investment = "investments_and_business"
     if flag(profile, f"{investment}.has_bank_interest") is True:
@@ -339,8 +368,27 @@ def build(profile: dict[str, Any]) -> str:
 
     ess = flag(profile, "employee_share_plans.has_ess_rsus_options_or_espp")
     if ess is True:
-        add(conditional, "ESS/foreign-employer details, plan rules, startup status, associate, cessation/restructure, platform, and holding records", "ESS taxing point, withholding, FX, later CGT cost-base bridge, and retained holdings.")
+        add(conditional, "ESS statement from each employer, plan rules, startup-concession status, and prior deferred-taxing-point records", "Establishes the ESS taxing point, discount, and withholding basis.")
         review_gates.append("Employee equity is present; reconcile ESS income and later CGT separately and escalate cross-border or deferred-taxing-point issues.")
+
+        vested = flag(profile, "employee_share_plans.had_vest_exercise_or_sale")
+        if vested is True:
+            add(conditional, "Grant, vest, exercise, cessation, restructure, and sale records with market values, amounts paid, and FX at each taxing point", "Fixes the taxing-point amount and the acquisition cost base for any later disposal.")
+        elif vested is None:
+            questions.append("Were there any employee-equity vesting, exercise, or sale events during 2025-26?")
+
+        retained = flag(profile, "employee_share_plans.retained_shares")
+        if retained is True:
+            add(conditional, "Year-end holding records and a cost-base bridge from the ESS taxing point to later CGT", "Retained shares carry a cost base set at the taxing point; without the bridge, a later disposal is miscalculated.")
+        elif retained is None:
+            questions.append("Were any shares acquired under employee equity still held at 30 June 2026?")
+
+        cross_border = flag(profile, "employee_share_plans.foreign_employer_or_overseas_workdays")
+        if cross_border is True:
+            add(conditional, "Foreign-employer plan details, overseas-workday calendar, source-allocation basis, and foreign tax withheld", "Cross-border equity must be apportioned by workday source before FITO or treaty relief is considered.")
+            review_gates.append("Employee equity involves a foreign employer or overseas workdays; obtain registered-tax-agent confirmation of source allocation, treaty position, and FITO before relying on any figure.")
+        elif cross_border is None:
+            questions.append("Was the employee equity granted by a foreign employer, or does it relate to overseas workdays?")
     elif ess is None:
         questions.append("Did the taxpayer have ESS, RSUs, options, ESPP, or other employee-equity activity?")
 
@@ -406,18 +454,20 @@ def build(profile: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def markdown_cell(value: str) -> str:
+def table_cell(value: str) -> str:
     return value.replace("\\", "\\\\").replace("|", "\\|")
 
 
 def table(title: str, rows: list[tuple[str, str, str]]) -> list[str]:
     lines = [f"## {title}", ""]
     if not rows:
-        lines.extend(["No items triggered by the current profile.", ""])
+        lines.extend(
+            ["Nothing triggered yet. Answer the intake questions below to populate this section.", ""]
+        )
         return lines
     lines.extend(["| Item | Why needed | Status |", "|---|---|---|"])
     for item, why, status in rows:
-        lines.append(f"| {item} | {why} | {status} |")
+        lines.append(f"| {table_cell(item)} | {table_cell(why)} | {table_cell(status)} |")
     lines.append("")
     return lines
 

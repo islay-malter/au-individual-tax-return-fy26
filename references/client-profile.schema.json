@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:openai:skill:au-itr-assessment-fy26:client-profile",
+  "$id": "urn:agent-skill:au-itr-assessment-fy26:client-profile",
   "title": "AU ITR Assessment FY26 Client Profile",
   "type": "object",
   "additionalProperties": false,

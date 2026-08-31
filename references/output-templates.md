@@ -4,23 +4,30 @@ Adapt these structures to the facts. Prefer a display name or initials and omit 
 
 ## File Checklist
 
+`scripts/build_file_checklist.py` emits exactly this structure from a profile. Match it when writing a checklist by hand, so a generated and a hand-written checklist are interchangeable.
+
 ```markdown
 # FY26 ITR File Checklist
 
 Taxpayer display name:
 Income year: 2025-26
 Prepared:
-Purpose:
 
-## Evidence To Obtain
+This checklist supports preparation and registered-tax-agent review. It is not tax advice.
 
-| Item | Why needed | Status | Notes |
-|---|---|---|---|
+## Evidence To Obtain Or Reconcile
+
+| Item | Why needed | Status |
+|---|---|---|
 
 ## Conditional Evidence
 
-| Item | Trigger | Why needed | Status |
-|---|---|---|---|
+| Item | Why needed | Status |
+|---|---|---|
+
+## Review Gates
+
+-
 
 ## Next Intake Questions
 
@@ -28,6 +35,8 @@ Purpose:
 2.
 3.
 ```
+
+`Status` is one of `Obtain`, `Confirm/reconcile`, `If obtainable`, `If useful`, `If threshold met`, or `Check`. Omit `Review Gates` when nothing has triggered one. Keep the question batch bounded — the generator caps it at eight and states how many remain — rather than emitting the full outstanding list at once.
 
 ## Source Register
 
