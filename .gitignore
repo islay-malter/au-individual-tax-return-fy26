@@ -5,6 +5,10 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 
+# Behavioural eval run outputs. Build artefacts of a run, never part of the
+# distributable skill.
+evals/runs/
+
 # Harness-local state. The package itself is harness-agnostic; anything a
 # particular agent host writes beside it stays out of the distributable folder.
 .claude/

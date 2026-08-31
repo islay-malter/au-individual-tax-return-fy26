@@ -92,7 +92,7 @@ Add `--strict` when building a release archive, or `--json` for machine-readable
 
 The preflight also checks that the verification date in `SKILL.md` matches the date stated in the rates and sources references, so a metadata-only freshness bump cannot pass.
 
-`validate_evals.py` checks the structure and coverage of the behavioural eval manifest in [`evals/cases.json`](evals/cases.json); it does not run the model, so a clean result only confirms the cases are well-formed, not that the skill currently passes them. Review the final file list manually before publishing or sharing it.
+`validate_evals.py` checks the structure and coverage of the behavioural eval manifest in [`evals/cases.json`](evals/cases.json); it does not run the model, so a clean result only confirms the cases are well-formed, not that the skill currently passes them. No behavioural run has ever been executed; [`evals/runner-design.md`](evals/runner-design.md) sets out what a runner would have to do, chiefly that grading must be structurally independent of the run that produced the answer. Review the final file list manually before publishing or sharing it.
 
 ## Building A Share Archive
 

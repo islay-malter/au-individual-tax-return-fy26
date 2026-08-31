@@ -61,6 +61,7 @@ assets/templates/         the blank, share-safe profile
 scripts/                  stdlib-only helpers
 tests/                    unittest
 evals/cases.json          behavioural cases; structure validated, not run
+evals/runner-design.md    how a runner must work if one is ever built
 agents/openai.yaml        optional interface manifest; not required
 ```
 
