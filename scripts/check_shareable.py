@@ -78,6 +78,10 @@ PII_PATTERNS = {
     "email-like value": re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"),
     "TFN-like 9-digit value": re.compile(r"(?<!\d)(?:\d[ -]?){8}\d(?!\d)"),
     "ABN-like 11-digit value": re.compile(r"(?<!\d)(?:\d[ -]?){10}\d(?!\d)"),
+    # A 6-digit BSB written 123-456 or 123 456, followed by a 6-10 digit
+    # account number. Requiring both parts keeps section and instrument
+    # references such as "154-1 to 154-20" out of the results.
+    "BSB and account number": re.compile(r"(?<!\d)\d{3}[- ]\d{3}[\s-]?\d{6,10}(?!\d)"),
     "private key": re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
 }
 

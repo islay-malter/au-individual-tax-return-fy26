@@ -50,6 +50,7 @@ Before calculating, confirm:
 - Official sources and access date for every material rate, threshold, label, and record rule.
 - Income for Medicare levy surcharge/private-health purposes, spouse/family status, dependants, and cover days.
 - Study/training-loan repayment income and the FY26 marginal repayment formula.
+- Whether Division 293 income plus low-tax contributions is near or above the $250,000 threshold, even when no determination has been received.
 - Taxable income, offsets, credits, Medicare treatment, and PAYG amounts all reconcile to sources.
 
 For part-year/foreign/temporary residency, foreign tax, deceased estates, ESS with cross-border service, complex trusts, crypto reconstruction, rental/business/PSI schedules, and unusual CGT events, prepare evidence and scenarios but require registered-tax-agent confirmation before presenting a single treatment as settled.
@@ -68,6 +69,19 @@ This is a documentation and reconciliation sequence, not a deterministic calcula
 8. Present payable/refund scenarios and sensitivity to unresolved items.
 
 Show every input, formula, intermediate component, and final reconciliation. Do not silently net items that appear separately on an assessment. Keep tax, Medicare, study-loan repayment, credits, withholding, and instalments visible.
+
+## Liabilities Assessed Outside The Notice Of Assessment
+
+Some amounts are real liabilities for the year but are assessed separately, so a working estimate that reconciles perfectly to the ordinary notice of assessment can still understate what the taxpayer ends up paying. Flag these rather than folding them into the refund or payable figure.
+
+Division 293 is the common one. Where Division 293 income plus low-tax (concessional) contributions approaches or exceeds the `$250,000` threshold in `references/fy26-rates-and-thresholds.md`:
+
+- Say so explicitly in the assessment, even when no determination has been issued. The determination ordinarily follows fund reporting and can arrive well after the return is lodged.
+- Estimate it separately from the income-tax reconciliation, and never net it against the refund or payable amount.
+- Use the contribution figures from the fund or the ATO account rather than inferring them from reportable employer super on an income statement, which is a different measure.
+- Treat the threshold as an alert, not a conclusion. Division 293 income has its own definition, and the tax applies to the lesser of the low-tax contributions and the excess over the threshold.
+
+Excess concessional and non-concessional contribution determinations, and any study or training loan account adjustment, behave the same way: separate assessment, separate correspondence, and out of scope for the income-tax reconciliation.
 
 ## Final Review
 

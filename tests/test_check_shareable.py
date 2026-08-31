@@ -164,6 +164,31 @@ class ShareabilityTests(unittest.TestCase):
             self.assertTrue(any("blocked document/archive type" in issue for issue in issues))
             self.assertTrue(any("email-like value" in issue for issue in issues))
 
+    def test_bank_identifiers_are_flagged(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            populate_package(root)
+            # Assembled at runtime so this test file does not itself contain a
+            # literal bank identifier for the preflight to flag.
+            bsb = "123" + "-" + "456"
+            account = "8765" + "4321"
+            (root / "references" / "refund.md").write_text(
+                f"Refund account: {bsb} {account}\n", encoding="utf-8"
+            )
+            issues = MODULE.findings(root, as_of=date(2026, 8, 31))
+            self.assertTrue(any("BSB and account number" in issue for issue in issues))
+
+    def test_section_references_are_not_mistaken_for_bank_details(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            populate_package(root)
+            (root / "references" / "law.md").write_text(
+                "See sections 154-1 to 154-20, the 2025-26 year, and F2024L00697.\n",
+                encoding="utf-8",
+            )
+            issues = MODULE.findings(root, as_of=date(2026, 8, 31))
+            self.assertFalse(any("BSB" in issue for issue in issues))
+
 
 if __name__ == "__main__":
     unittest.main()

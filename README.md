@@ -72,6 +72,22 @@ The preflight also checks that the verification date in `SKILL.md` matches the d
 
 `validate_evals.py` checks the structure and coverage of the behavioural eval manifest in [`evals/cases.json`](evals/cases.json); it does not run the model, so a clean result only confirms the cases are well-formed, not that the skill currently passes them. Review the final file list manually before publishing or sharing it.
 
+## Building A Share Archive
+
+Build the bundle with `git archive` rather than zipping the folder:
+
+```bash
+git archive --format=zip --output=au-itr-assessment-fy26.zip main
+```
+
+`git archive` writes only tracked files, so local state cannot leak into a shared archive regardless of what is sitting in the working directory — no `__pycache__`, no `.DS_Store`, no `__MACOSX/` resource forks from the macOS Finder, and no `config/` or taxpayer documents even if the ignore rules were somehow bypassed. Zipping the folder by hand offers none of those guarantees.
+
+Check the result before sending it:
+
+```bash
+unzip -l au-itr-assessment-fy26.zip
+```
+
 ## Licence
 
 Released under the [MIT Licence](LICENSE).
