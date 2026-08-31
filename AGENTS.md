@@ -38,6 +38,15 @@ the entire privacy design. Reject them.
 and the document extensions stop a taxpayer's records being committed. Never
 replace the file wholesale with a generic Python template; add to it instead.
 
+**The `ITR_` prefix on generated files is part of that control.** Taxpayer
+outputs are named `ITR_File_Checklist.md` and similar so the `ITR_*.md` ignore
+rule catches them. Renaming the prefix has been proposed on the grounds that
+"ITR" reads as the Indian income tax return, which is why the package itself
+was renamed. The prefix was deliberately left alone: it is matched by an ignore
+rule, not displayed to a user, so changing it means changing that rule and
+`build_file_checklist.py` together, in one commit, or working papers start
+landing in the repository.
+
 **Never advance `reverify-by` without actually re-verifying the sources.**
 Bumping the frontmatter dates is not revalidation, and neither is a passing
 test run. Re-open each official source, confirm every material rate, threshold,
