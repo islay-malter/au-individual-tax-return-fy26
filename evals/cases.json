@@ -135,7 +135,7 @@
         },
         {
           "id": "identify-independent-route",
-          "criterion": "States that a genuinely independent recomputation, myTax comparison, or registered-tax-agent comparison is still required."
+          "criterion": "States that an independent recomputation, myTax comparison, or registered-tax-agent comparison is still required."
         }
       ],
       "prohibited": [

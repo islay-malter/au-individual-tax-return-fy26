@@ -2,7 +2,7 @@
 
 Use this to build a `2025-26` profile before requesting documents. Ask in short batches, beginning with scope, residency, household, and major income categories. Stop once enough facts exist to generate a useful checklist.
 
-Because each batch is short, order matters. Ask in three tiers: scope facts that change how everything else is treated; then facts that move the tax outcome or open a review gate, such as residency detail, employee equity, foreign involvement, and Medicare or private-health status; then completeness and record-hygiene confirmations. A working-papers convenience such as a display name is a hygiene question, not a scope question — the checklist renders a placeholder without it.
+Because each batch is short, order matters. Ask in three tiers: scope facts that change how everything else is treated; then facts that move the tax outcome or open a review gate, such as residency detail, employee equity, foreign involvement, and Medicare or private-health status; then completeness and record-hygiene confirmations. A working-papers convenience such as a display name is a hygiene question, not a scope question; the checklist renders a placeholder without it.
 
 Do not request a TFN, myGov credentials, MFA codes, passwords, or full bank identifiers. A display name or initials is sufficient.
 

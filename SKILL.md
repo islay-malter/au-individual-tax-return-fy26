@@ -8,7 +8,7 @@ metadata:
   reverify-by: "2026-11-30"
 ---
 
-# AU ITR Assessment FY26
+# AU Individual Tax Return FY26
 
 Prepare an evidence-backed working assessment for the Australian `2025-26` income year. This skill supports preparation and review only: do not lodge a return, present the result as tax advice, or imply that it replaces a registered tax agent.
 

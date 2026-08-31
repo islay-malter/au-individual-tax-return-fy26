@@ -36,7 +36,7 @@ This checklist supports preparation and registered-tax-agent review. It is not t
 3.
 ```
 
-`Status` is one of `Obtain`, `Confirm/reconcile`, `If obtainable`, `If useful`, `If threshold met`, or `Check`. Omit `Review Gates` when nothing has triggered one. Keep the question batch bounded — the generator caps it at eight and states how many remain — rather than emitting the full outstanding list at once.
+`Status` is one of `Obtain`, `Confirm/reconcile`, `If obtainable`, `If useful`, `If threshold met`, or `Check`. Omit `Review Gates` when nothing has triggered one. Keep the question batch bounded, since the generator caps it at eight and states how many remain, rather than emitting the full outstanding list at once.
 
 ## Source Register
 

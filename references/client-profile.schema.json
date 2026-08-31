@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:agent-skill:au-individual-tax-return-fy26:client-profile",
-  "title": "AU ITR Assessment FY26 Client Profile",
+  "title": "AU Individual Tax Return FY26 Client Profile",
   "type": "object",
   "additionalProperties": false,
   "required": [

@@ -1,4 +1,4 @@
-# AU ITR Assessment — FY26
+# AU Individual Tax Return FY26
 
 An Agent Skill for preparing, reviewing, or sanity-checking an Australian individual income tax return for the `2025-26` income year (year ended 30 June 2026). It uses an intake-first, evidence-reconciled workflow and is intended to support myTax preparation or accountant review.
 
@@ -8,17 +8,17 @@ This package is FY26-only. It does not lodge returns, provide tax advice, or rep
 
 ## What This Does Differently
 
-Three deliberate constraints. Each has been proposed for removal by a reviewer at some point, and each is load-bearing.
+Three deliberate constraints. A reviewer has proposed removing each of them at some point.
 
 - **No tax calculator.** No script here performs financial arithmetic. Every estimate is model-produced and carries the label `Unchecked model-produced working scenario` until it is independently recomputed, or compared against myTax or a registered tax agent.
-- **No identifiers, no amounts.** The profile holds booleans, enums, a display name, and an occupation. There is no field for a TFN, ABN, bank details, or a dollar figure — those stay in the taxpayer's own working folder and never enter this repository. `.gitignore` and `scripts/check_shareable.py` are privacy controls, not tidiness.
-- **The expiry is enforced, not just declared.** Advancing `reverify-by` is not sufficient on its own: the preflight requires the frontmatter date to also appear in the rates and sources references, and `evals/cases.json` carries a behavioural case for the cosmetic-bump failure mode. Bumping the dates without re-opening the sources fails the checks.
+- **No identifiers, no amounts.** The profile holds booleans, enums, a display name, and an occupation. There is no field for a TFN, ABN, bank details, or a dollar figure. Those stay in the taxpayer's own working folder and never enter this repository. `.gitignore` and `scripts/check_shareable.py` are privacy controls, not tidiness.
+- **The expiry is enforced.** Advancing `reverify-by` is not sufficient on its own: the preflight requires the frontmatter date to also appear in the rates and sources references, and `evals/cases.json` carries a behavioural case for the cosmetic-bump failure mode. Bumping the dates without re-opening the sources fails the checks.
 
 ## Why It Is Built This Way
 
 In April 2026 the ATO warned taxpayers about acting on AI-generated tax information. Assistant Commissioner Anita Challen cautioned that such tools may draw on tax laws "from outside of Australia or outdated sources" ([media release](https://www.ato.gov.au/media-centre/from-hacks-to-half-truths-ato-warns-of-tax-time-misinformation-and-reveals-focus-areas), 27 April 2026).
 
-Those are precisely the two failure modes this package is designed against. The FY26-only scope addresses the first; the enforced expiry gate addresses the second. Neither makes the output correct — you remain accountable for what you lodge.
+Those are the two failure modes this package is designed against. The FY26-only scope addresses the first; the enforced expiry gate addresses the second. Neither makes the output correct; you remain accountable for what you lodge.
 
 **If you are a registered tax agent or BAS agent**, using AI in the provision of tax agent services does not reduce your obligations under the Tax Agent Services Act 2009 and the Code of Professional Conduct. See [TPB(GS) 55/2026](https://www.tpb.gov.au/tpbgs-552026-use-artificial-intelligence-and-code-professional-conduct) (issued 22 July 2026), which covers competence, reasonable care, confidentiality, record keeping, professional judgement, and supervision. This package is a preparation aid; it does not discharge any of them.
 
@@ -84,9 +84,9 @@ python3 scripts/check_shareable.py .
 
 Run the preflight last. It sorts what it finds into three groups:
 
-- **Blocking findings** — private config, taxpayer documents, possible identifiers, missing files, and an expired source set. These always fail the check.
-- **Advisories** — build artefacts such as `__pycache__` and `.DS_Store`. Delete them; `--strict` fails on them.
-- **Notes** — harness-local directories such as `.claude/`. Any checkout an agent host has run in contains one, and `git archive` never writes them, so these are reported for review when archiving by hand and never fail the check, including under `--strict`.
+- **Blocking findings**: private config, taxpayer documents, possible identifiers, missing files, and an expired source set. These always fail the check.
+- **Advisories**: build artefacts such as `__pycache__` and `.DS_Store`. Delete them; `--strict` fails on them.
+- **Notes**: harness-local directories such as `.claude/`. Any checkout an agent host has run in contains one, and `git archive` never writes them, so these are reported for review when archiving by hand and never fail the check, including under `--strict`.
 
 Add `--strict` when building a release archive, or `--json` for machine-readable output.
 
@@ -102,7 +102,7 @@ Build the bundle with `git archive` rather than zipping the folder:
 git archive --format=zip --output=au-individual-tax-return-fy26.zip main
 ```
 
-`git archive` writes only tracked files, so local state cannot leak into a shared archive regardless of what is sitting in the working directory — no `__pycache__`, no `.DS_Store`, no `__MACOSX/` resource forks from the macOS Finder, and no `config/` or taxpayer documents even if the ignore rules were somehow bypassed. Zipping the folder by hand offers none of those guarantees.
+`git archive` writes only tracked files, so local state cannot leak into a shared archive regardless of what is sitting in the working directory: no `__pycache__`, no `.DS_Store`, no `__MACOSX/` resource forks from the macOS Finder, and no `config/` or taxpayer documents even if the ignore rules were somehow bypassed. Zipping the folder by hand offers none of those guarantees.
 
 Check the result before sending it:
 
