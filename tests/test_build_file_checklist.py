@@ -183,6 +183,38 @@ class ChecklistTests(unittest.TestCase):
         self.assertIn("Answer the intake questions below", output)
         self.assertNotIn("No items triggered by the current profile", output)
 
+    @staticmethod
+    def _questions(output: str) -> list[str]:
+        return [line for line in output.splitlines() if line[:1].isdigit() and ". " in line]
+
+    def test_display_name_does_not_occupy_a_first_batch_slot(self) -> None:
+        batch = " ".join(self._questions(MODULE.build(blank_profile())))
+        self.assertNotIn("display name or initials", batch)
+        # A tax fact takes the slot instead.
+        self.assertIn("deceased-estate/final individual return", batch)
+
+    def test_material_questions_outrank_record_hygiene(self) -> None:
+        profile = scoped_profile()
+        profile["employee_share_plans"]["has_ess_rsus_options_or_espp"] = True
+        profile["records"]["prior_year_return_available"] = None
+        batch = self._questions(MODULE.build(profile))
+        joined = "\n".join(batch)
+        self.assertIn("foreign employer", joined)
+
+        cross_border = next(i for i, q in enumerate(batch) if "foreign employer" in q)
+        hygiene = next(
+            (i for i, q in enumerate(batch) if "prior-year lodged return" in q.lower()),
+            len(batch),
+        )
+        self.assertLess(cross_border, hygiene)
+
+    def test_batch_stays_bounded_after_reprioritisation(self) -> None:
+        profile = blank_profile()
+        profile["employee_share_plans"]["has_ess_rsus_options_or_espp"] = True
+        output = MODULE.build(profile)
+        self.assertLessEqual(len(self._questions(output)), MODULE.MAX_NEXT_QUESTIONS)
+        self.assertIn("additional question(s) remain", output)
+
 
 if __name__ == "__main__":
     unittest.main()

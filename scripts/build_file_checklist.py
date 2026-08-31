@@ -154,11 +154,6 @@ def add(rows: list[tuple[str, str, str]], item: str, why: str, status: str = "Ob
     rows.append((item, why, status))
 
 
-def ask_if_unknown(profile: dict[str, Any], dotted: str, question: str, questions: list[str]) -> None:
-    if nested(profile, dotted) is None:
-        questions.append(question)
-
-
 def build(profile: dict[str, Any]) -> str:
     validate_profile(profile)
     raw_display_name = nested(profile, "identity.display_name")
@@ -168,12 +163,21 @@ def build(profile: dict[str, Any]) -> str:
 
     required: list[tuple[str, str, str]] = []
     conditional: list[tuple[str, str, str]] = []
+    # Questions are asked in three tiers, because the batch is capped and a
+    # later tier can be pushed out of the current batch entirely:
+    #   priority  - scope facts that change how everything else is treated
+    #   material  - facts that move the tax outcome or open a review gate
+    #   questions - completeness and record-hygiene confirmations
     priority_questions: list[str] = []
+    material_questions: list[str] = []
     questions: list[str] = []
     review_gates: list[str] = []
 
     if not raw_display_name:
-        priority_questions.append("What display name or initials should be used in the working papers?")
+        # A working-papers convenience, not a tax fact. The checklist renders a
+        # usable placeholder without it, so it does not deserve a scope slot
+        # ahead of questions that change the outcome.
+        questions.append("What display name or initials should be used in the working papers?")
     if nested(profile, "scope.lodgment_path") is None:
         priority_questions.append("Is the FY26 work for an accountant, myTax, an amendment, or an estimate only?")
 
@@ -188,7 +192,7 @@ def build(profile: dict[str, Any]) -> str:
     if flag(profile, "scope.deceased_return") is True:
         review_gates.append("This is a deceased-estate/final individual return; obtain registered-tax-agent review of period, representative, and estate issues.")
     elif flag(profile, "scope.deceased_return") is None:
-        questions.append("Is this a return for a living taxpayer rather than a deceased-estate/final individual return?")
+        material_questions.append("Is this a return for a living taxpayer rather than a deceased-estate/final individual return?")
 
     prefill = nested(profile, "records.ato_prefill_status")
     if prefill == "official-agent-prefill":
@@ -240,13 +244,13 @@ def build(profile: dict[str, Any]) -> str:
         if flag(profile, "household.private_health_changed_during_year") is True:
             add(required, "Private hospital-cover start/end and policy-change records", "MLS and rebate may require day or period apportionment.")
     elif private_health is None:
-        questions.append("Did the taxpayer hold appropriate private hospital cover during 2025-26, and did it change?")
+        material_questions.append("Did the taxpayer hold appropriate private hospital cover during 2025-26, and did it change?")
 
     medicare_gap = flag(profile, "household.medicare_exemption_or_entitlement_gap")
     if medicare_gap is True:
         add(required, "Medicare Entitlement Statement or other exemption evidence", "Supports exempt days or entitlement-gap treatment.")
     elif medicare_gap is None:
-        questions.append("Were there any Medicare entitlement gaps or exemption circumstances during the year?")
+        material_questions.append("Were there any Medicare entitlement gaps or exemption circumstances during the year?")
 
     salary = flag(profile, "employment.has_salary_or_wages")
     employers = nested(profile, "employment.employers") or []
@@ -300,7 +304,7 @@ def build(profile: dict[str, Any]) -> str:
                 "Check",
             )
         else:
-            questions.append(
+            material_questions.append(
                 "What was the taxpayer's occupation? It determines which ATO occupation guide applies to the work-expense claims."
             )
 
@@ -364,7 +368,7 @@ def build(profile: dict[str, Any]) -> str:
         if nested(profile, f"{investment}.{key}") is None
     ]
     if business_unknown_labels:
-        questions.append("Were any of these still-unconfirmed categories relevant: " + ", ".join(business_unknown_labels) + "?")
+        material_questions.append("Were any of these still-unconfirmed categories relevant: " + ", ".join(business_unknown_labels) + "?")
 
     ess = flag(profile, "employee_share_plans.has_ess_rsus_options_or_espp")
     if ess is True:
@@ -375,22 +379,22 @@ def build(profile: dict[str, Any]) -> str:
         if vested is True:
             add(conditional, "Grant, vest, exercise, cessation, restructure, and sale records with market values, amounts paid, and FX at each taxing point", "Fixes the taxing-point amount and the acquisition cost base for any later disposal.")
         elif vested is None:
-            questions.append("Were there any employee-equity vesting, exercise, or sale events during 2025-26?")
+            material_questions.append("Were there any employee-equity vesting, exercise, or sale events during 2025-26?")
 
         retained = flag(profile, "employee_share_plans.retained_shares")
         if retained is True:
             add(conditional, "Year-end holding records and a cost-base bridge from the ESS taxing point to later CGT", "Retained shares carry a cost base set at the taxing point; without the bridge, a later disposal is miscalculated.")
         elif retained is None:
-            questions.append("Were any shares acquired under employee equity still held at 30 June 2026?")
+            material_questions.append("Were any shares acquired under employee equity still held at 30 June 2026?")
 
         cross_border = flag(profile, "employee_share_plans.foreign_employer_or_overseas_workdays")
         if cross_border is True:
             add(conditional, "Foreign-employer plan details, overseas-workday calendar, source-allocation basis, and foreign tax withheld", "Cross-border equity must be apportioned by workday source before FITO or treaty relief is considered.")
             review_gates.append("Employee equity involves a foreign employer or overseas workdays; obtain registered-tax-agent confirmation of source allocation, treaty position, and FITO before relying on any figure.")
         elif cross_border is None:
-            questions.append("Was the employee equity granted by a foreign employer, or does it relate to overseas workdays?")
+            material_questions.append("Was the employee equity granted by a foreign employer, or does it relate to overseas workdays?")
     elif ess is None:
-        questions.append("Did the taxpayer have ESS, RSUs, options, ESPP, or other employee-equity activity?")
+        material_questions.append("Did the taxpayer have ESS, RSUs, options, ESPP, or other employee-equity activity?")
 
     if flag(profile, "super_and_loans.super_statement_available") is True:
         add(conditional, "Super annual statement/contribution history", "Contribution caps and Division 293 context where relevant.", "Confirm/reconcile")
@@ -440,7 +444,7 @@ def build(profile: dict[str, Any]) -> str:
             lines.append(f"- {gate}")
         lines.append("")
 
-    all_questions = list(dict.fromkeys(priority_questions + questions))
+    all_questions = list(dict.fromkeys(priority_questions + material_questions + questions))
     if all_questions:
         shown = all_questions[:MAX_NEXT_QUESTIONS]
         lines.extend(["## Next Intake Questions", ""])
