@@ -6,6 +6,22 @@ This package is FY26-only. It does not lodge returns, provide tax advice, or rep
 
 **The packaged source set expires.** The `reverify-by` date in the [`SKILL.md`](SKILL.md) frontmatter is the authoritative expiry. Past that date the skill will still run intake, evidence collection, and document organisation, but it will refuse to calculate or assert current rules until the official sources are revalidated and the dates advanced. The shareability preflight fails after the same date. This is deliberate: tax settings change, and a stale snapshot presented confidently is worse than no snapshot.
 
+## What This Does Differently
+
+Three deliberate constraints. Each has been proposed for removal by a reviewer at some point, and each is load-bearing.
+
+- **No tax calculator.** No script here performs financial arithmetic. Every estimate is model-produced and carries the label `Unchecked model-produced working scenario` until it is independently recomputed, or compared against myTax or a registered tax agent.
+- **No identifiers, no amounts.** The profile holds booleans, enums, a display name, and an occupation. There is no field for a TFN, ABN, bank details, or a dollar figure — those stay in the taxpayer's own working folder and never enter this repository. `.gitignore` and `scripts/check_shareable.py` are privacy controls, not tidiness.
+- **The expiry is enforced, not just declared.** Advancing `reverify-by` is not sufficient on its own: the preflight requires the frontmatter date to also appear in the rates and sources references, and `evals/cases.json` carries a behavioural case for the cosmetic-bump failure mode. Bumping the dates without re-opening the sources fails the checks.
+
+## Why It Is Built This Way
+
+In April 2026 the ATO warned taxpayers about acting on AI-generated tax information. Assistant Commissioner Anita Challen cautioned that such tools may draw on tax laws "from outside of Australia or outdated sources" ([media release](https://www.ato.gov.au/media-centre/from-hacks-to-half-truths-ato-warns-of-tax-time-misinformation-and-reveals-focus-areas), 27 April 2026).
+
+Those are precisely the two failure modes this package is designed against. The FY26-only scope addresses the first; the enforced expiry gate addresses the second. Neither makes the output correct — you remain accountable for what you lodge.
+
+**If you are a registered tax agent or BAS agent**, using AI in the provision of tax agent services does not reduce your obligations under the Tax Agent Services Act 2009 and the Code of Professional Conduct. See [TPB(GS) 55/2026](https://www.tpb.gov.au/tpbgs-552026-use-artificial-intelligence-and-code-professional-conduct) (issued 22 July 2026), which covers competence, reasonable care, confidentiality, record keeping, professional judgement, and supervision. This package is a preparation aid; it does not discharge any of them.
+
 ## Install
 
 The skill is harness-agnostic. It is a plain folder containing `SKILL.md` at its root, with no host-specific requirements.

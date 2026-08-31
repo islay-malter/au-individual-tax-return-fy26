@@ -113,3 +113,27 @@ asserted that build artefacts are committed (they are not — `git ls-files` is
 clean), that the HELP repayment system needs updating to the marginal bands
 (already documented), and that `validate_evals.py` should use `Decimal` (it
 performs no arithmetic).
+
+## Prior art
+
+Other Australian tax packages exist and take different positions. Knowing them
+stops the recurring "just add a calculator" and "the schema needs a TFN field"
+suggestions being mistaken for gaps.
+
+- `nijanthan-dev/taxmate-australia` — Apache-2.0, actively maintained, far
+  broader (26 `SKILL.md` files, four harness manifests). It ships a calculator
+  (`scripts/taxmate_calc.py`) and its intake carries `payg_employer_abn`,
+  `partnership_tfn`, `tfn_withheld`, and dollar amounts. That is a different
+  bet, not a better version of this one; do not import either choice here.
+- `william-laverty/ato-mcp` — AGPL-3.0. Retrieval over the ATO corpus with
+  citations, and it persists a user profile. Useful as a source-of-truth
+  companion, but its licence means no text should be vendored into
+  `references/`.
+- `openaccountants/openaccountants` — AGPL-3.0 plus a bespoke content licence.
+  Its Australian guide has carried `tax_year: 2024` frontmatter over a 2025-26
+  body while marked `pending_review`. That is the exact defect the FY26-only
+  rule and the enforced expiry gate exist to prevent.
+
+No package found so far enforces source expiry — several record freshness
+metadata, none refuse on it. Treat that and the zero-identifier profile as the
+differentiators worth protecting.
