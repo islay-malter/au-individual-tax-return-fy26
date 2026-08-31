@@ -29,20 +29,20 @@ The skill is harness-agnostic. It is a plain folder containing `SKILL.md` at its
 Download the repository ZIP, or clone it:
 
 ```bash
-git clone https://github.com/islay-malter/au-itr-assessment-fy26.git
+git clone https://github.com/islay-malter/au-individual-tax-return-fy26.git
 ```
 
-Keep the folder name `au-itr-assessment-fy26` and ensure `SKILL.md` is at the folder root. Place the complete folder in your agent's skills directory:
+Keep the folder name `au-individual-tax-return-fy26` and ensure `SKILL.md` is at the folder root. Place the complete folder in your agent's skills directory:
 
 ```text
-~/.agents/skills/au-itr-assessment-fy26/
+~/.agents/skills/au-individual-tax-return-fy26/
 ```
 
 If your harness does not read `~/.agents/skills` yet, copy the same folder to whichever directory it does read:
 
 ```text
-~/.claude/skills/au-itr-assessment-fy26/
-~/.codex/skills/au-itr-assessment-fy26/
+~/.claude/skills/au-individual-tax-return-fy26/
+~/.codex/skills/au-individual-tax-return-fy26/
 ```
 
 Restart or refresh the Agent Skills host if it does not discover the skill immediately.
@@ -99,7 +99,7 @@ The preflight also checks that the verification date in `SKILL.md` matches the d
 Build the bundle with `git archive` rather than zipping the folder:
 
 ```bash
-git archive --format=zip --output=au-itr-assessment-fy26.zip main
+git archive --format=zip --output=au-individual-tax-return-fy26.zip main
 ```
 
 `git archive` writes only tracked files, so local state cannot leak into a shared archive regardless of what is sitting in the working directory — no `__pycache__`, no `.DS_Store`, no `__MACOSX/` resource forks from the macOS Finder, and no `config/` or taxpayer documents even if the ignore rules were somehow bypassed. Zipping the folder by hand offers none of those guarantees.
@@ -107,7 +107,7 @@ git archive --format=zip --output=au-itr-assessment-fy26.zip main
 Check the result before sending it:
 
 ```bash
-unzip -l au-itr-assessment-fy26.zip
+unzip -l au-individual-tax-return-fy26.zip
 ```
 
 ## Licence

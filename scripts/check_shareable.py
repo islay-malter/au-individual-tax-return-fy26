@@ -195,8 +195,8 @@ def scan(
     skill_file = skill_dir / "SKILL.md"
     if skill_file.is_file():
         content = skill_file.read_text(encoding="utf-8")
-        if "name: au-itr-assessment-fy26" not in content:
-            blocking.append("SKILL.md name is not au-itr-assessment-fy26")
+        if "name: au-individual-tax-return-fy26" not in content:
+            blocking.append("SKILL.md name is not au-individual-tax-return-fy26")
         if not re.search(r"(?m)^license:\s*MIT\s*$", content):
             blocking.append("SKILL.md license is not MIT")
         if "2024-25" in content:

@@ -34,7 +34,7 @@ def valid_case(**overrides: object) -> dict:
 def valid_manifest(cases: list[dict]) -> dict:
     return {
         "schema_version": 1,
-        "skill": "au-itr-assessment-fy26",
+        "skill": "au-individual-tax-return-fy26",
         "pass_rule": "all_required_and_no_prohibited",
         "cases": cases,
     }

@@ -35,7 +35,7 @@ def populate_package(
         )
     (root / "SKILL.md").write_text(
         "---\n"
-        "name: au-itr-assessment-fy26\n"
+        "name: au-individual-tax-return-fy26\n"
         "description: Test package.\n"
         "license: MIT\n"
         "metadata:\n"
@@ -89,7 +89,7 @@ class ShareabilityTests(unittest.TestCase):
             root = Path(temp_dir)
             populate_package(root)
             (root / "SKILL.md").write_text(
-                "---\nname: au-itr-assessment-fy26\ndescription: Test package.\n---\n",
+                "---\nname: au-individual-tax-return-fy26\ndescription: Test package.\n---\n",
                 encoding="utf-8",
             )
             issues = MODULE.findings(root, as_of=date(2026, 8, 31))

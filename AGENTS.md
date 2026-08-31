@@ -92,7 +92,7 @@ agent host touches has one and `git archive` excludes them regardless. Use
 Build share archives with `git archive`, never by zipping the folder:
 
 ```bash
-git archive --format=zip --output=au-itr-assessment-fy26.zip main
+git archive --format=zip --output=au-individual-tax-return-fy26.zip main
 ```
 
 Two test fixtures assemble an email address and a bank identifier at runtime,

@@ -2,7 +2,7 @@ interface:
   display_name: "AU ITR Assessment — FY26"
   short_description: "FY26 Australian individual tax preparation"
   brand_color: "#2563EB"
-  default_prompt: "Use $au-itr-assessment-fy26 to prepare or review an Australian individual tax return for 2025-26."
+  default_prompt: "Use $au-individual-tax-return-fy26 to prepare or review an Australian individual tax return for 2025-26."
 
 policy:
   allow_implicit_invocation: true
