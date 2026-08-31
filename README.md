@@ -66,7 +66,13 @@ python3 scripts/validate_evals.py evals/cases.json
 python3 scripts/check_shareable.py .
 ```
 
-Run the preflight last. It separates **blocking findings** — private config, taxpayer documents, possible identifiers, missing files, and an expired source set — from **advisories**, which are local build artefacts and harness-local directories that Git already ignores. Only blocking findings fail the check. Add `--strict` to fail on advisories too when building a release archive, or `--json` for machine-readable output.
+Run the preflight last. It sorts what it finds into three groups:
+
+- **Blocking findings** — private config, taxpayer documents, possible identifiers, missing files, and an expired source set. These always fail the check.
+- **Advisories** — build artefacts such as `__pycache__` and `.DS_Store`. Delete them; `--strict` fails on them.
+- **Notes** — harness-local directories such as `.claude/`. Any checkout an agent host has run in contains one, and `git archive` never writes them, so these are reported for review when archiving by hand and never fail the check, including under `--strict`.
+
+Add `--strict` when building a release archive, or `--json` for machine-readable output.
 
 The preflight also checks that the verification date in `SKILL.md` matches the date stated in the rates and sources references, so a metadata-only freshness bump cannot pass.
 

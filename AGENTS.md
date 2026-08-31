@@ -83,8 +83,10 @@ python3 scripts/validate_evals.py evals/cases.json
 python3 scripts/check_shareable.py .
 ```
 
-Run the preflight last. It separates blocking findings from advisories; build
-artefacts and harness-local directories are advisories and do not fail it. Use
+Run the preflight last. It separates blocking findings from advisories and
+notes. Build artefacts are advisories and fail only under `--strict`;
+harness-local directories are notes and never fail, because every checkout an
+agent host touches has one and `git archive` excludes them regardless. Use
 `--strict` when cutting a release.
 
 Build share archives with `git archive`, never by zipping the folder:

@@ -118,4 +118,4 @@ Keep assumptions near the top and separate material tax-dollar issues from factu
 - `references/client-profile.schema.json`: machine-readable profile contract.
 - `assets/templates/client-profile.example.json`: blank, share-safe profile.
 
-Before sharing the skill folder, run `scripts/check_shareable.py` and review its findings. Blocking findings must be resolved; advisories list local build artefacts and harness-local directories to leave out of an archive. Do not include `config/`, taxpayer documents, or generated outputs.
+Before sharing the skill folder, run `scripts/check_shareable.py` and review its findings. Blocking findings must be resolved. Advisories list build artefacts that should be deleted, and notes list harness-local directories that `git archive` already excludes. Do not include `config/`, taxpayer documents, or generated outputs.

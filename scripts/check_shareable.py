@@ -4,9 +4,12 @@ Findings are split by severity:
 
 - Blocking findings are privacy, packaging, or freshness problems that make the
   folder unsafe or invalid to share. They set a non-zero exit status.
-- Advisories are local build artefacts and harness-local directories. They are
-  worth cleaning before building an archive but are normally ignored by version
-  control, so they do not fail the check unless --strict is passed.
+- Advisories are build artefacts that can simply be deleted. They do not fail
+  the check unless --strict is passed.
+- Notes are harness-local and vendored directories. A working checkout is
+  expected to contain them and `git archive` never includes them, so they are
+  reported for archive-by-hand review only and never fail the check, including
+  under --strict.
 """
 
 from __future__ import annotations
@@ -54,8 +57,10 @@ SEMVER_PATTERN = re.compile(r"^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$")
 # Walked but never reported; a repository checkout is expected to contain this.
 SILENT_DIRS = {".git"}
 
-# Not walked, and reported as an advisory: harness-local or vendored state that
-# belongs to a machine rather than to the distributable package.
+# Not walked, and reported as a note rather than an advisory: harness-local or
+# vendored state that belongs to a machine rather than to the distributable
+# package. These exist in any working checkout and are never written by
+# `git archive`, so requiring their removal would make --strict unpassable.
 LOCAL_DIRS = {".claude", ".codex", ".agents", "node_modules", ".venv", "venv"}
 
 # Not walked, and reported once per directory rather than once per file.
@@ -134,18 +139,21 @@ def _walk(skill_dir: Path) -> tuple[list[Path], list[str], list[str]]:
     return files, local_dirs, transient_dirs
 
 
-def scan(skill_dir: Path, *, as_of: date | None = None) -> tuple[list[str], list[str]]:
-    """Return (blocking findings, advisories) for a skill folder."""
+def scan(
+    skill_dir: Path, *, as_of: date | None = None
+) -> tuple[list[str], list[str], list[str]]:
+    """Return (blocking findings, advisories, notes) for a skill folder."""
     blocking: list[str] = []
     advisory: list[str] = []
+    notes: list[str] = []
     check_date = as_of or date.today()
     if not skill_dir.is_dir():
-        return [f"not a directory: {skill_dir}"], []
+        return [f"not a directory: {skill_dir}"], [], []
 
     files, local_dirs, transient_dirs = _walk(skill_dir)
 
     for relative in local_dirs:
-        advisory.append(f"harness-local directory, exclude from any archive: {relative}/")
+        notes.append(f"harness-local directory, never written by git archive: {relative}/")
     for relative in transient_dirs:
         advisory.append(f"build artefacts, safe to delete: {relative}/")
 
@@ -227,7 +235,7 @@ def scan(skill_dir: Path, *, as_of: date | None = None) -> tuple[list[str], list
         if verified:
             blocking.extend(_source_date_findings(skill_dir, verified))
 
-    return blocking, advisory
+    return blocking, advisory, notes
 
 
 def _source_date_findings(skill_dir: Path, verified: date) -> list[str]:
@@ -269,11 +277,15 @@ def main(argv: list[str] | None = None) -> int:
         help="Skill directory; defaults to the parent of this script directory.",
     )
     parser.add_argument("--json", action="store_true", help="Emit machine-readable JSON.")
-    parser.add_argument("--strict", action="store_true", help="Treat advisories as failures too.")
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Treat advisories as failures too. Notes never fail the check.",
+    )
     args = parser.parse_args(argv)
 
     skill_dir = args.skill_dir.resolve()
-    blocking, advisory = scan(skill_dir)
+    blocking, advisory, notes = scan(skill_dir)
     failed = bool(blocking) or (args.strict and bool(advisory))
 
     if args.json:
@@ -284,6 +296,7 @@ def main(argv: list[str] | None = None) -> int:
                     "shareable": not failed,
                     "findings": blocking,
                     "advisories": advisory,
+                    "notes": notes,
                 },
                 indent=2,
             )
@@ -294,15 +307,23 @@ def main(argv: list[str] | None = None) -> int:
         print("Shareability preflight failed:", file=sys.stderr)
         for issue in blocking:
             print(f"- {issue}", file=sys.stderr)
+    elif failed:
+        print("Shareability preflight failed under --strict:", file=sys.stderr)
     else:
         print(f"Shareability preflight passed: {skill_dir}")
 
     if advisory:
         stream = sys.stderr if args.strict else sys.stdout
         print("", file=stream)
-        print("Advisories (not shared by Git; delete before building an archive):", file=stream)
+        print("Advisories (build artefacts; delete before building an archive):", file=stream)
         for note in advisory:
             print(f"- {note}", file=stream)
+
+    if notes:
+        print("")
+        print("Notes (expected in a working checkout; git archive excludes them):")
+        for note in notes:
+            print(f"- {note}")
 
     if not failed:
         print("")

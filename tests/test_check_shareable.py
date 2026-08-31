@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import contextlib
 import importlib.util
+import io
 import tempfile
 import unittest
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 
@@ -63,9 +65,10 @@ class ShareabilityTests(unittest.TestCase):
             git_config = root / ".git" / "config"
             git_config.parent.mkdir(parents=True, exist_ok=True)
             git_config.write_text("[core]\n\trepositoryformatversion = 0\n", encoding="utf-8")
-            blocking, advisory = MODULE.scan(root, as_of=date(2026, 8, 31))
+            blocking, advisory, notes = MODULE.scan(root, as_of=date(2026, 8, 31))
             self.assertEqual(blocking, [])
             self.assertEqual(advisory, [])
+            self.assertEqual(notes, [])
 
     def test_package_is_current_through_reverify_date(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -122,10 +125,11 @@ class ShareabilityTests(unittest.TestCase):
             cache.mkdir(parents=True, exist_ok=True)
             (cache / "check_shareable.cpython-313.pyc").write_bytes(b"\x00")
             (root / ".DS_Store").write_bytes(b"\x00")
-            blocking, advisory = MODULE.scan(root, as_of=date(2026, 8, 31))
+            blocking, advisory, notes = MODULE.scan(root, as_of=date(2026, 8, 31))
             self.assertEqual(blocking, [])
             self.assertTrue(any("scripts/__pycache__/" in note for note in advisory))
             self.assertTrue(any(".DS_Store" in note for note in advisory))
+            self.assertEqual(notes, [])
 
     def test_artefacts_reported_once_per_directory(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -135,19 +139,22 @@ class ShareabilityTests(unittest.TestCase):
             cache.mkdir(parents=True, exist_ok=True)
             for name in ("a.cpython-313.pyc", "b.cpython-313.pyc", "c.cpython-313.pyc"):
                 (cache / name).write_bytes(b"\x00")
-            _, advisory = MODULE.scan(root, as_of=date(2026, 8, 31))
+            _, advisory, _ = MODULE.scan(root, as_of=date(2026, 8, 31))
             self.assertEqual(len([n for n in advisory if "__pycache__" in n]), 1)
 
-    def test_harness_local_directory_is_advisory_and_not_walked(self) -> None:
+    def test_harness_local_directory_is_a_note_and_not_walked(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             populate_package(root)
             worktree = root / ".claude" / "worktrees" / "wip"
             worktree.mkdir(parents=True, exist_ok=True)
             (worktree / "notes.pdf").write_bytes(b"%PDF-1.4\n")
-            blocking, advisory = MODULE.scan(root, as_of=date(2026, 8, 31))
+            blocking, advisory, notes = MODULE.scan(root, as_of=date(2026, 8, 31))
             self.assertEqual(blocking, [])
-            self.assertTrue(any(".claude/" in note for note in advisory))
+            self.assertTrue(any(".claude/" in note for note in notes))
+            # Harness-local state must stay out of advisories, or --strict could
+            # never pass from a checkout that an agent host has written to.
+            self.assertEqual(advisory, [])
 
     def test_real_taxpayer_documents_still_block(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -188,6 +195,45 @@ class ShareabilityTests(unittest.TestCase):
             )
             issues = MODULE.findings(root, as_of=date(2026, 8, 31))
             self.assertFalse(any("BSB" in issue for issue in issues))
+
+
+class StrictModeTests(unittest.TestCase):
+    """--strict is the release gate, so it must be passable from a real checkout.
+
+    A checkout an agent host has run in always contains a harness-local
+    directory. Failing on that made --strict unpassable in practice, which is
+    worse than not having the gate at all.
+    """
+
+    @staticmethod
+    def run_main(argv: list[str]) -> int:
+        """Run the CLI with its report suppressed, so test output stays readable."""
+        sink = io.StringIO()
+        with contextlib.redirect_stdout(sink), contextlib.redirect_stderr(sink):
+            return MODULE.main(argv)
+
+    def test_strict_passes_with_only_harness_local_state(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            populate_package(
+                root,
+                verified=str(date.today()),
+                reverify_by=str(date.today() + timedelta(days=90)),
+            )
+            (root / ".claude" / "worktrees" / "wip").mkdir(parents=True, exist_ok=True)
+            self.assertEqual(self.run_main([str(root), "--strict"]), 0)
+
+    def test_strict_fails_on_deletable_build_artefacts(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            populate_package(
+                root,
+                verified=str(date.today()),
+                reverify_by=str(date.today() + timedelta(days=90)),
+            )
+            (root / "scripts" / "__pycache__").mkdir(parents=True, exist_ok=True)
+            self.assertEqual(self.run_main([str(root), "--strict"]), 1)
+            self.assertEqual(self.run_main([str(root)]), 0)
 
 
 if __name__ == "__main__":
