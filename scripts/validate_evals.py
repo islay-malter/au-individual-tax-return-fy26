@@ -17,9 +17,11 @@ from pathlib import Path
 
 DEFAULT_MANIFEST = Path(__file__).resolve().parents[1] / "evals" / "cases.json"
 
+EXPECTED_SCHEMA_VERSION = 1
+EXPECTED_SKILL = "au-individual-tax-return-fy26"
 KNOWN_PASS_RULES = {"all_required_and_no_prohibited"}
 TOP_LEVEL_FIELDS = ("schema_version", "skill", "pass_rule", "cases")
-CASE_FIELDS = ("id", "as_of_date", "prompt", "required", "prohibited")
+CASE_FIELDS = ("id", "category", "as_of_date", "prompt", "required", "prohibited")
 CRITERION_FIELDS = ("id", "criterion")
 
 
@@ -36,9 +38,27 @@ def _validate_criteria(case_id: str, field: str, value: object, issues: list[str
         if missing:
             issues.append(f"case '{case_id}': '{field}' entry missing {missing}")
             continue
-        if entry["id"] in seen_ids:
-            issues.append(f"case '{case_id}': duplicate '{field}' entry id '{entry['id']}'")
-        seen_ids.add(entry["id"])
+
+        # Both are reported independently: a criterion carrying the wrong type
+        # in both fields should surface both problems in one pass, rather than
+        # hiding the second behind a fix for the first.
+        entry_id = entry["id"]
+        if not isinstance(entry_id, str) or not entry_id.strip():
+            issues.append(
+                f"case '{case_id}': '{field}' criterion id must be a non-empty string, "
+                f"got {entry_id!r}"
+            )
+        criterion = entry["criterion"]
+        if not isinstance(criterion, str) or not criterion.strip():
+            issues.append(
+                f"case '{case_id}': '{field}' criterion text must be a non-empty string, "
+                f"got {criterion!r}"
+            )
+
+        if isinstance(entry_id, str):
+            if entry_id in seen_ids:
+                issues.append(f"case '{case_id}': duplicate '{field}' entry id '{entry_id}'")
+            seen_ids.add(entry_id)
 
 
 def _validate_case(case: object, issues: list[str]) -> str | None:
@@ -58,6 +78,10 @@ def _validate_case(case: object, issues: list[str]) -> str | None:
     prompt = case.get("prompt")
     if prompt is not None and (not isinstance(prompt, str) or not prompt.strip()):
         issues.append(f"case {case_id!r}: 'prompt' must be a non-empty string")
+
+    category = case.get("category")
+    if category is not None and (not isinstance(category, str) or not category.strip()):
+        issues.append(f"case {case_id!r}: 'category' must be a non-empty string")
 
     as_of_date = case.get("as_of_date")
     if as_of_date is not None:
@@ -83,8 +107,18 @@ def validate(manifest: object) -> list[str]:
     if missing_top:
         issues.append(f"manifest missing top-level field(s): {missing_top}")
 
+    schema_version = manifest.get("schema_version")
+    if schema_version != EXPECTED_SCHEMA_VERSION or isinstance(schema_version, bool):
+        issues.append(
+            f"schema_version must be {EXPECTED_SCHEMA_VERSION}, got {schema_version!r}"
+        )
+
+    skill = manifest.get("skill")
+    if skill != EXPECTED_SKILL:
+        issues.append(f"skill must be {EXPECTED_SKILL!r}, got {skill!r}")
+
     pass_rule = manifest.get("pass_rule")
-    if pass_rule is not None and pass_rule not in KNOWN_PASS_RULES:
+    if "pass_rule" in manifest and pass_rule not in KNOWN_PASS_RULES:
         issues.append(f"unknown pass_rule: {pass_rule!r}")
 
     cases = manifest.get("cases")

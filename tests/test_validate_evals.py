@@ -22,6 +22,7 @@ SPEC.loader.exec_module(MODULE)
 def valid_case(**overrides: object) -> dict:
     case = {
         "id": "sample-case",
+        "category": "scope",
         "as_of_date": "2026-09-15",
         "prompt": "Prepare my FY26 return.",
         "required": [{"id": "req-1", "criterion": "Does the required thing."}],
@@ -51,11 +52,29 @@ class EvalManifestStructureTests(unittest.TestCase):
         issues = MODULE.validate(manifest)
         self.assertTrue(any("pass_rule" in issue for issue in issues))
 
+    def test_unknown_schema_version_is_rejected(self) -> None:
+        manifest = valid_manifest([valid_case()])
+        manifest["schema_version"] = 2
+        issues = MODULE.validate(manifest)
+        self.assertTrue(any("schema_version" in issue for issue in issues))
+
+    def test_wrong_skill_name_is_rejected(self) -> None:
+        manifest = valid_manifest([valid_case()])
+        manifest["skill"] = "another-skill"
+        issues = MODULE.validate(manifest)
+        self.assertTrue(any("skill" in issue for issue in issues))
+
     def test_case_missing_required_field_is_rejected(self) -> None:
         case = valid_case()
         del case["required"]
         issues = MODULE.validate(valid_manifest([case]))
         self.assertTrue(any("required" in issue for issue in issues))
+
+    def test_case_missing_category_is_rejected(self) -> None:
+        case = valid_case()
+        del case["category"]
+        issues = MODULE.validate(valid_manifest([case]))
+        self.assertTrue(any("category" in issue for issue in issues))
 
     def test_duplicate_case_id_is_rejected(self) -> None:
         issues = MODULE.validate(valid_manifest([valid_case(), valid_case()]))
@@ -73,9 +92,21 @@ class EvalManifestStructureTests(unittest.TestCase):
         issues = MODULE.validate(valid_manifest([valid_case(required=[])]))
         self.assertTrue(any("required" in issue for issue in issues))
 
+    def test_criterion_fields_must_be_non_empty_strings(self) -> None:
+        required = [{"id": 7, "criterion": 42}]
+        issues = MODULE.validate(valid_manifest([valid_case(required=required)]))
+        self.assertTrue(any("criterion id" in issue for issue in issues))
+        self.assertTrue(any("criterion text" in issue for issue in issues))
+
     def test_unknown_pass_rule_is_rejected(self) -> None:
         manifest = valid_manifest([valid_case()])
         manifest["pass_rule"] = "vibes"
+        issues = MODULE.validate(manifest)
+        self.assertTrue(any("pass_rule" in issue for issue in issues))
+
+    def test_null_pass_rule_is_rejected(self) -> None:
+        manifest = valid_manifest([valid_case()])
+        manifest["pass_rule"] = None
         issues = MODULE.validate(manifest)
         self.assertTrue(any("pass_rule" in issue for issue in issues))
 

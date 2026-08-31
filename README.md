@@ -12,7 +12,7 @@ Three deliberate constraints. A reviewer has proposed removing each of them at s
 
 - **No tax calculator.** No script here performs financial arithmetic. Every estimate is model-produced and carries the label `Unchecked model-produced working scenario` until it is independently recomputed, or compared against myTax or a registered tax agent.
 - **No identifiers, no amounts.** The profile holds booleans, enums, a display name, and an occupation. There is no field for a TFN, ABN, bank details, or a dollar figure. Those stay in the taxpayer's own working folder and never enter this repository. `.gitignore` and `scripts/check_shareable.py` are privacy controls, not tidiness.
-- **The expiry is enforced.** Advancing `reverify-by` is not sufficient on its own: the preflight requires the frontmatter date to also appear in the rates and sources references, and `evals/cases.json` carries a behavioural case for the cosmetic-bump failure mode. Bumping the dates without re-opening the sources fails the checks.
+- **The expiry is checked, not just declared.** Advancing `reverify-by` in the frontmatter alone is not enough: the preflight requires the same date to appear in the rates and sources references, and `evals/cases.json` carries a behavioural case for the cosmetic-bump failure mode. This catches a metadata-only bump. It cannot prove the sources were actually re-opened, since a determined editor can change all three files, so the maintainer rule in `AGENTS.md` still governs.
 
 ## Why It Is Built This Way
 
@@ -102,7 +102,9 @@ Build the bundle with `git archive` rather than zipping the folder:
 git archive --format=zip --output=au-individual-tax-return-fy26.zip main
 ```
 
-`git archive` writes only tracked files, so local state cannot leak into a shared archive regardless of what is sitting in the working directory: no `__pycache__`, no `.DS_Store`, no `__MACOSX/` resource forks from the macOS Finder, and no `config/` or taxpayer documents even if the ignore rules were somehow bypassed. Zipping the folder by hand offers none of those guarantees.
+`git archive` writes only tracked files, so untracked local state cannot leak into a shared archive regardless of what is sitting in the working directory: no `__pycache__`, no `.DS_Store`, no `__MACOSX/` resource forks from the macOS Finder, and no `config/` or taxpayer documents. Zipping the folder by hand offers none of those guarantees.
+
+It protects against untracked state, not against a bad commit. Anything force-added to the index with `git add -f` is tracked, and `git archive` will ship it. That is why `scripts/check_shareable.py` blocks on any file under `config/`, any `*.local.json`, and any generated taxpayer output, whatever the ignore rules say. Run the preflight as well as trusting the archive.
 
 Check the result before sending it:
 
