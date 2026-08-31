@@ -11,6 +11,10 @@ __pycache__/
 .codex/
 .agents/
 
+# Session handoff notes. Working state for whoever picks the package up next;
+# not part of the distributable skill, so it must never become tracked.
+.handoff/
+
 config/
 *.local.json
 ITR_*.md
